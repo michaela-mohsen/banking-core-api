@@ -10,7 +10,7 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.banking.springboot</groupId>
-    <artifactId>spring-boot-banking-core-api</artifactId>
+    <artifactId>banking-core-api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
