@@ -32,7 +32,7 @@ public class AccountController {
 
 
 	@GetMapping("/accounts/{id}")
-	public ResponseEntity<?> getAccountById(@PathVariable Integer id) {
+	public ResponseEntity<Object> getAccountById(@PathVariable Integer id) {
 		try {
 			log.info("Inside getAccountById: {}", id);
 			AccountDto account = accountService.getAccountById(id);
@@ -48,7 +48,7 @@ public class AccountController {
 
 	// get all accounts
 	@GetMapping("/accounts")
-	public ResponseEntity<?> listAccounts() {
+	public ResponseEntity<Object> listAccounts() {
 		log.info("Inside listAccounts");
 		List<AccountDto> accounts = accountService.getAllAccounts();
 		return new ResponseEntity<>(accounts, HttpStatus.OK);
@@ -56,7 +56,7 @@ public class AccountController {
 
 	// filter accounts by type
 	@GetMapping("/accounts/search")
-	public ResponseEntity<?> listAccountsByProductType(@RequestParam("type") String type) {
+	public ResponseEntity<Object> listAccountsByProductType(@RequestParam("type") String type) {
 		try {
 			log.info("Inside listAccountsByProductType: {}", type);
 			List<AccountDto> accountsByProduct = accountService.getAccountsByProductType(type);
@@ -68,7 +68,7 @@ public class AccountController {
 	}
 
 	@GetMapping("/accounts/customer/{id}")
-	public ResponseEntity<?> listAccountsByCustomerId(@PathVariable Integer id) {
+	public ResponseEntity<Object> listAccountsByCustomerId(@PathVariable Integer id) {
 		try {
 			log.info("Inside getAccountsByCustomerId: {}", id);
 			List<AccountDto> accountsByCustomer = accountService.getAccountsByCustomerId(id);
@@ -84,7 +84,7 @@ public class AccountController {
 
 	// create a new account object
 	@PostMapping("/accounts/new")
-	public ResponseEntity<?> createAccount(@RequestBody @Valid AccountDto accountDto, BindingResult bindingResult) {
+	public ResponseEntity<Object> createAccount(@RequestBody @Valid AccountDto accountDto, BindingResult bindingResult) {
 		try {
 			if(!bindingResult.hasErrors()) {
 				log.info("Inside createAccount");
@@ -109,7 +109,7 @@ public class AccountController {
 
 	// activate/deactivate an account object
 	@PutMapping("/accounts/status/{id}")
-	public ResponseEntity<?> toggleAccount(@PathVariable Integer id, @RequestBody AccountDto data) {
+	public ResponseEntity<Object> toggleAccount(@PathVariable Integer id, @RequestBody AccountDto data) {
 		log.info("Inside toggleAccount: {}", data);
 		AccountDto existingAccount;
 		try {

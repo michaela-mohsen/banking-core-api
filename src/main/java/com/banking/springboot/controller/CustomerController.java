@@ -32,7 +32,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers")
-    public ResponseEntity<?> listCustomers(@RequestParam(required = false) String lastName, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Object> listCustomers(@RequestParam(required = false) String lastName, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable paging = PageRequest.of(page, size);
         Page<Customer> pageCustomers;
         if(lastName == null) {
@@ -57,7 +57,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/{id}")
-    public ResponseEntity<?> getCustomerById(@PathVariable Integer id) {
+    public ResponseEntity<Object> getCustomerById(@PathVariable Integer id) {
         try {
             CustomerDto customer = customerService.getCustomerById(id);
             return new ResponseEntity<>(customer, HttpStatus.OK);
@@ -69,7 +69,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/search")
-    public ResponseEntity<?> getCustomerByLastNameAndBirthDate(@RequestParam String lastName, @RequestParam String birthDate) {
+    public ResponseEntity<Object> getCustomerByLastNameAndBirthDate(@RequestParam String lastName, @RequestParam String birthDate) {
         try {
             CustomerDto customer = customerService.getCustomerByBirthDateAndLastName(LocalDate.parse(birthDate), lastName);
             return new ResponseEntity<>(customer, HttpStatus.OK);
@@ -79,7 +79,7 @@ public class CustomerController {
     }
 
     @PostMapping("/customers/new")
-    public ResponseEntity<?> createCustomer(@Valid @RequestBody CustomerDto customerDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> createCustomer(@Valid @RequestBody CustomerDto customerDto, BindingResult bindingResult) {
         try {
             if(!bindingResult.hasErrors()) {
                 Customer newCustomer = customerService.saveCustomer(customerDto);
@@ -97,7 +97,7 @@ public class CustomerController {
     }
 
     @PutMapping("/customers/update/{id}")
-    public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @Valid @RequestBody CustomerDto customerDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> updateCustomer(@PathVariable Integer id, @Valid @RequestBody CustomerDto customerDto, BindingResult bindingResult) {
         try {
             if(!bindingResult.hasErrors()) {
                 Customer updatedCustomer = customerService.updateCustomer(customerDto);
@@ -116,7 +116,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/customers/delete/{id}")
-    public ResponseEntity<?> deleteCustomer(@PathVariable Integer id) {
+    public ResponseEntity<Object> deleteCustomer(@PathVariable Integer id) {
         try {
             customerService.deleteCustomerById(id);
             return new ResponseEntity<>("Customer deleted successfully", HttpStatus.OK);

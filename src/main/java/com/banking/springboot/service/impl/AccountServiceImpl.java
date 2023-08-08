@@ -110,9 +110,9 @@ public class AccountServiceImpl implements AccountService {
 		ObjectMapper mapper = new ObjectMapper();
 		log.info("Inside toggleAccountStatus {}", mapper.writeValueAsString(dto));
 		Account a = accountRepository.findAccountById(id);
-		log.info("Account found with id " + id);
+		log.debug("Account found with id " + id);
 		boolean newAccountStatus = Boolean.parseBoolean(dto.getActive());
-		if(newAccountStatus != a.getActive()) {
+		if(!a.getActive().equals(newAccountStatus)) {
 			a.setActive(newAccountStatus);
 			a.setLastActivityDate(LocalDateTime.now());
 			accountRepository.save(a);
@@ -187,7 +187,6 @@ public class AccountServiceImpl implements AccountService {
 		dto.setAvailableBalance(updatedBalance);
 		dto.setPendingBalance(a.getPendingBalance());
 		dto.setActive(a.getActive().toString());
-//		dto.setBirthDate(a.getCustomer().getBirthDate().format(dateFormatter));
 		dto.setBirthDate(a.getCustomer().getBirthDate().toString());
 		dto.setLastName(a.getCustomer().getLastName());
 		dto.setBranch(a.getBranch().getName());
