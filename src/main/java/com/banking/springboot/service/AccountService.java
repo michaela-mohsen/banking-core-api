@@ -7,6 +7,7 @@ import com.banking.springboot.entity.Account;
 import com.banking.springboot.exceptions.AccountDoesNotExistException;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.exceptions.NoTransactionsException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,8 +22,8 @@ public interface AccountService {
 
 	void deleteAccountById(Integer id);
 
-	Account saveAccount(AccountDto account) throws CustomerDoesNotExistException;
+	Account saveAccount(AccountDto account) throws CustomerDoesNotExistException, JsonProcessingException;
 
-	AccountDto toggleAccountStatus(Integer id, AccountDto account);
+	AccountDto toggleAccountStatus(Integer id, AccountDto account) throws JsonProcessingException;
 
 }

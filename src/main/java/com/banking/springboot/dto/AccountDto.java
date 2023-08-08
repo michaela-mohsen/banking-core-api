@@ -1,6 +1,7 @@
 package com.banking.springboot.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 import java.util.List;
@@ -11,13 +12,11 @@ public class AccountDto {
     private Integer id;
 
     @NotNull(message = "Available balance is required.")
-    @Positive(message = "Available balance must be positive.")
     @Max(value = 1000000, message = "Available balance must be less than or equal to $1,000,000.")
     @Min(value = 1, message = "Available balance must be at least $1.")
     private Double availableBalance;
 
     @NotNull(message = "Pending balance is required.")
-    @Positive(message = "Pending balance must be positive.")
     @Max(value = 1000000, message = "Pending balance must be less than or equal to $1,000,000.")
     @Min(value = 1, message = "Pending balance must be at least $1.")
     private Double pendingBalance;
@@ -28,6 +27,7 @@ public class AccountDto {
     private String birthDate;
 
     @NotEmpty(message = "Last name is required.")
+    @Length(min = 2, max = 45, message = "Last name must be between 2 and 45 characters long.")
     private String lastName;
 
     @NotEmpty(message = "Branch name is required.")

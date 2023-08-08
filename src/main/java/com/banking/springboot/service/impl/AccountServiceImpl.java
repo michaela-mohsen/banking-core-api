@@ -8,6 +8,8 @@ import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.exceptions.NoTransactionsException;
 import com.banking.springboot.repository.*;
 import com.banking.springboot.service.AccountService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -47,9 +50,9 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public List<AccountDto> getAllAccounts() {
-		log.debug("Inside getAllAccounts AccountServiceImpl");
+		log.info("Inside getAllAccounts");
 		List<Account> accounts = accountRepository.findAll();
-		log.debug(accounts.size() + " accounts found");
+		log.info(accounts.size() + " accounts found");
 		List<AccountDto> accountsToJSON = new ArrayList<>();
 		for(Account a : accounts) {
 			AccountDto dto = accountToJson(a);
@@ -60,12 +63,11 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public AccountDto getAccountById(Integer id) throws AccountDoesNotExistException {
-		log.debug("Inside getAccountById AccountServiceImpl {}", id);
+		log.info("Inside getAccountById: {}", id);
 		Account a = accountRepository.findAccountById(id);
 		if(a != null) {
-			log.debug("Account found with id " + id);
-			AccountDto dto = accountToJson(a);
-			return dto;
+			log.info("Account found with id {}", id);
+			return accountToJson(a);
 		} else {
 			throw new AccountDoesNotExistException("Account does not exist with id" + id);
 		}
@@ -77,8 +79,9 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public Account saveAccount(AccountDto accountDto) throws CustomerDoesNotExistException {
-		log.debug("Inside saveAccount AccountServiceImpl {}", accountDto);
+	public Account saveAccount(AccountDto accountDto) throws CustomerDoesNotExistException, JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		log.info("Inside saveAccount {}", mapper.writeValueAsString(accountDto));
 		Account newAccount = new Account();
 		try {
 			Customer customer = customerRepository.findByBirthDateAndLastName(LocalDate.parse(accountDto.getBirthDate()), accountDto.getLastName());
@@ -103,16 +106,17 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public AccountDto toggleAccountStatus(Integer id, AccountDto dto) {
-		log.debug("Inside toggleAccountStatus AccountServiceImpl {}", dto);
+	public AccountDto toggleAccountStatus(Integer id, AccountDto dto) throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		log.info("Inside toggleAccountStatus {}", mapper.writeValueAsString(dto));
 		Account a = accountRepository.findAccountById(id);
-		log.debug("Account found with id " + id);
-		Boolean newAccountStatus = Boolean.parseBoolean(dto.getActive());
+		log.info("Account found with id " + id);
+		boolean newAccountStatus = Boolean.parseBoolean(dto.getActive());
 		if(newAccountStatus != a.getActive()) {
 			a.setActive(newAccountStatus);
 			a.setLastActivityDate(LocalDateTime.now());
 			accountRepository.save(a);
-			log.debug("Account status updated to " + newAccountStatus);
+			log.info("Account status updated to " + newAccountStatus);
 		}
 		dto = accountToJson(a);
 		return dto;
@@ -120,9 +124,9 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public List<AccountDto> getAccountsByProductType(String type) {
-		log.debug("Inside getAccountsByProductType AccountServiceImpl {}", type);
+		log.info("Inside getAccountsByProductType: {}", type);
 		List<Account> accounts = accountRepository.findByProductTypeOrderById(type);
-		log.debug(accounts.size() + " accounts found with product type " + type);
+		log.info(accounts.size() + " accounts found with product type " + type);
 		List<AccountDto> accountsToJSON = new ArrayList<>();
 		for(Account a : accounts) {
 			AccountDto dto = accountToJson(a);
@@ -133,35 +137,36 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public List<AccountDto> getAccountsByCustomerId(Integer id) throws CustomerDoesNotExistException, AccountDoesNotExistException {
-		log.debug("Inside getAccountsByCustomerId AccountServiceImpl {}", id);
-		List<Account> accounts = accountRepository.findByCustomerId(id);
-		log.debug(accounts.size() + " found for customer with id " + id);
-		if(accounts != null) {
+		log.info("Inside getAccountsByCustomerId: {}", id);
+		Customer customer = customerRepository.findCustomerById(id);
+		List<AccountDto> accountsToJSON = new ArrayList<>();
+		if(customer != null) {
+			List<Account> accounts = accountRepository.findByCustomerId(id);
+			log.info(accounts.size() + " found for customer with id " + id);
 			if(!accounts.isEmpty()) {
-				List<AccountDto> accountsToJSON = new ArrayList<>();
-				for(Account a : accounts) {
-					AccountDto dto = accountToJson(a);
+				for(Account account : accounts) {
+					AccountDto dto = accountToJson(account);
 					accountsToJSON.add(dto);
 				}
-				return accountsToJSON;
 			} else {
 				throw new AccountDoesNotExistException("Customer with id " + id + " does not have any accounts.");
 			}
 		} else {
-			throw new CustomerDoesNotExistException("Customer does not exist with id " + id);
+			throw new CustomerDoesNotExistException("Customer with id " + id + " does not exist.");
 		}
+		return accountsToJSON;
 	}
 
 	private Double updateAvailableBalance(LocalDate lastActivityDate, Double pendingBalance, Double availableBalance) {
-		log.debug("Inside updateAvailableBalance AccountServiceImpl");
+		log.info("Inside updateAvailableBalance AccountServiceImpl");
 		Double updatedBalance;
 		LocalDate now = LocalDate.now();
 		if(now.isAfter(lastActivityDate)) {
 			updatedBalance = pendingBalance;
-			log.debug("Balance updated");
+			log.info("Balance updated");
 		} else {
 			updatedBalance = availableBalance;
-			log.debug("Balance not changed");
+			log.info("Balance not changed");
 		}
 		return updatedBalance;
 	}
@@ -191,7 +196,7 @@ public class AccountServiceImpl implements AccountService {
 		dto.setOpenDate(a.getOpenDate().format(dateFormatter));
 		dto.setLastActivityDate(a.getLastActivityDate().format(dateTimeFormatter));
 		dto.setTransactions(transactionsToJSON);
-		log.debug("Done converting account to json");
+		log.debug("Done converting account to JSON");
 		return dto;
 	}
 
