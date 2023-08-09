@@ -6,6 +6,7 @@ import java.util.List;
 import com.banking.springboot.dto.BranchDto;
 import com.banking.springboot.entity.Branch;
 import com.banking.springboot.exceptions.BranchDoesNotExistException;
+import com.banking.springboot.util.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +19,15 @@ public class BranchServiceImpl implements BranchService {
 	@Autowired
 	private BranchRepository branchRepository;
 
-	public BranchServiceImpl(BranchRepository branchRepository) {
-		super();
-		this.branchRepository = branchRepository;
-	}
+	@Autowired
+	private Utility util;
 
 	@Override
 	public List<BranchDto> getAllBranches() {
 		List<Branch> branches = branchRepository.findAll();
 		List<BranchDto> branchesToJson = new ArrayList<>();
 		for(Branch branch : branches) {
-			BranchDto dto = branchToJson(branch);
+			BranchDto dto = util.convertBranchToJson(branch);
 			branchesToJson.add(dto);
 		}
 		return branchesToJson;
@@ -39,21 +38,10 @@ public class BranchServiceImpl implements BranchService {
 
 		Branch branch = branchRepository.findByName(name);
 		if(branch != null) {
-			return branchToJson(branch);
+			return util.convertBranchToJson(branch);
 		} else {
 			throw new BranchDoesNotExistException("Branch does not exist with name " + name);
 		}
-	}
-
-	private BranchDto branchToJson(Branch b) {
-		BranchDto dto = new BranchDto();
-		dto.setName(b.getName());
-		dto.setAddress(b.getAddress());
-		dto.setCity(b.getCity());
-		dto.setState(b.getState());
-		dto.setZipCode(b.getZipCode());
-
-		return dto;
 	}
 
 }

@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -22,7 +21,6 @@ public class Department {
 	private Integer id;
 
 	@Column
-	@NotNull
 	@JsonProperty
 	private String name;
 

@@ -5,13 +5,14 @@ import com.banking.springboot.entity.Customer;
 import com.banking.springboot.exceptions.CustomError;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.service.impl.CustomerServiceImpl;
+import com.banking.springboot.util.Utility;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,10 +24,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping
-@CrossOrigin
+@CrossOrigin("http://localhost:3000")
 public class CustomerController {
 
     private CustomerServiceImpl customerService;
+
+    @Autowired
+    private Utility util;
 
     public CustomerController(CustomerServiceImpl customerService) {
         this.customerService = customerService;
@@ -45,7 +49,7 @@ public class CustomerController {
         List<Customer> customersAsList = pageCustomers.getContent();
         List<CustomerDto> jsonCustomers = new ArrayList<>();
         for (Customer customer : customersAsList) {
-            CustomerDto customerJson = customerService.convertCustomerToJson(customer);
+            CustomerDto customerJson = util.convertCustomerToJson(customer);
             jsonCustomers.add(customerJson);
         }
         Map<String, Object> response = new HashMap<>();
@@ -86,13 +90,7 @@ public class CustomerController {
                 Customer newCustomer = customerService.saveCustomer(customerDto);
                 return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
             } else {
-                List<CustomError> allErrors = new ArrayList<>();
-                for(FieldError error : bindingResult.getFieldErrors()) {
-                    CustomError customError = new CustomError();
-                    customError.setField(error.getField());
-                    customError.setMessage(error.getDefaultMessage());
-                    allErrors.add(customError);
-                }
+                List<CustomError> allErrors = util.listAllCustomErrors(bindingResult);
                 return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
@@ -107,13 +105,7 @@ public class CustomerController {
                 Customer updatedCustomer = customerService.updateCustomer(customerDto);
                 return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
             } else {
-                List<CustomError> allErrors = new ArrayList<>();
-                for(FieldError error : bindingResult.getFieldErrors()) {
-                    CustomError customError = new CustomError();
-                    customError.setField(error.getField());
-                    customError.setMessage(error.getDefaultMessage());
-                    allErrors.add(customError);
-                }
+                List<CustomError> allErrors = util.listAllCustomErrors(bindingResult);
                 return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
