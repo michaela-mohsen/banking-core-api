@@ -24,13 +24,13 @@ public class TransactionController {
     private TransactionServiceImpl service;
 
     @GetMapping("/transactions")
-    public ResponseEntity<?> getAllTransactions() {
+    public ResponseEntity<Object> getAllTransactions() {
         List<TransactionDto> transactions = service.getAllTransactions();
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
 
     @PostMapping("/transactions/new")
-    public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionDto transaction, BindingResult bindingResult) {
+    public ResponseEntity<Object> createTransaction(@Valid @RequestBody TransactionDto transaction, BindingResult bindingResult) {
         try {
             if(!bindingResult.hasErrors()) {
                 Transaction t = service.saveTransaction(transaction);

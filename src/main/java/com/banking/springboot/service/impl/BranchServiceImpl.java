@@ -35,23 +35,11 @@ public class BranchServiceImpl implements BranchService {
 	}
 
 	@Override
-	public BranchDto getBranchById(Integer id) throws BranchDoesNotExistException {
-		try {
-			Branch branch = branchRepository.findById(id).get();
-			BranchDto dto = branchToJson(branch);
-			return dto;
-		} catch (Exception e) {
-			throw new BranchDoesNotExistException("Branch does not exist with id " + id);
-		}
-	}
-
-	@Override
 	public BranchDto getBranchByName(String name) throws BranchDoesNotExistException {
 
 		Branch branch = branchRepository.findByName(name);
 		if(branch != null) {
-			BranchDto dto = branchToJson(branch);
-			return dto;
+			return branchToJson(branch);
 		} else {
 			throw new BranchDoesNotExistException("Branch does not exist with name " + name);
 		}

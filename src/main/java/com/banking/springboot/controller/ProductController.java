@@ -17,13 +17,13 @@ public class ProductController {
     private ProductServiceImpl productService;
 
     @GetMapping("/products")
-    public ResponseEntity<?> listAllProducts() {
+    public ResponseEntity<Object> listAllProducts() {
         List<ProductDto> products = productService.getAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @GetMapping("/products/search")
-    public ResponseEntity<?> findProductByName(@RequestParam String name) {
+    public ResponseEntity<Object> findProductByName(@RequestParam String name) {
         ProductDto dto = productService.findProductByName(name);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }

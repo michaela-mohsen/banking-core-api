@@ -2,7 +2,6 @@ package com.banking.springboot.service;
 
 import java.util.List;
 
-import com.banking.springboot.dto.AccountDto;
 import com.banking.springboot.dto.TransactionDto;
 import com.banking.springboot.exceptions.AccountDoesNotExistException;
 import com.banking.springboot.exceptions.NoTransactionsException;

@@ -2,6 +2,7 @@ package com.banking.springboot.controller;
 
 import com.banking.springboot.dto.CustomerDto;
 import com.banking.springboot.entity.Customer;
+import com.banking.springboot.exceptions.CustomError;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.service.impl.CustomerServiceImpl;
 import org.springframework.data.domain.Page;
@@ -85,9 +86,12 @@ public class CustomerController {
                 Customer newCustomer = customerService.saveCustomer(customerDto);
                 return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
             } else {
-                Map<String, String> allErrors = new HashMap<>();
+                List<CustomError> allErrors = new ArrayList<>();
                 for(FieldError error : bindingResult.getFieldErrors()) {
-                    allErrors.put(error.getField(), error.getDefaultMessage());
+                    CustomError customError = new CustomError();
+                    customError.setField(error.getField());
+                    customError.setMessage(error.getDefaultMessage());
+                    allErrors.add(customError);
                 }
                 return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
             }
@@ -103,9 +107,12 @@ public class CustomerController {
                 Customer updatedCustomer = customerService.updateCustomer(customerDto);
                 return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
             } else {
-                Map<String, String> allErrors = new HashMap<>();
+                List<CustomError> allErrors = new ArrayList<>();
                 for(FieldError error : bindingResult.getFieldErrors()) {
-                    allErrors.put(error.getField(), error.getDefaultMessage());
+                    CustomError customError = new CustomError();
+                    customError.setField(error.getField());
+                    customError.setMessage(error.getDefaultMessage());
+                    allErrors.add(customError);
                 }
                 return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
             }

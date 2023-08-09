@@ -10,7 +10,5 @@ import org.springframework.stereotype.Component;
 public interface BranchService {
 	List<BranchDto> getAllBranches();
 
-	BranchDto getBranchById(Integer id) throws BranchDoesNotExistException;
-
 	BranchDto getBranchByName(String name) throws BranchDoesNotExistException;
 }

@@ -33,23 +33,21 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public CustomerDto getCustomerById(Integer id) throws CustomerDoesNotExistException {
-		try {
-			Customer customer = repository.findById(id).get();
-			CustomerDto customerJson = convertCustomerToJson(customer);
-			return customerJson;
-		} catch (Exception e) {
-			throw new CustomerDoesNotExistException("Customer not found with id " + id, e);
+		Customer customer = repository.findCustomerById(id);
+		if(customer != null) {
+			return convertCustomerToJson(customer);
+		} else {
+			throw new CustomerDoesNotExistException("Customer not found with id " + id);
 		}
 	}
 
 	@Override
 	public CustomerDto getCustomerByBirthDateAndLastName(LocalDate birthDate, String lastName) throws CustomerDoesNotExistException {
-		try {
-			Customer c = repository.findByBirthDateAndLastName(birthDate, lastName);
-			CustomerDto customerJson = convertCustomerToJson(c);
-			return customerJson;
-		} catch (Exception e) {
-			throw new CustomerDoesNotExistException("Customer not found with birth date " + birthDate + " and last name " + lastName, e);
+		Customer c = repository.findByBirthDateAndLastName(birthDate, lastName);
+		if(c != null) {
+			return convertCustomerToJson(c);
+		} else {
+			throw new CustomerDoesNotExistException("Customer not found with birth date " + birthDate + " and last name " + lastName);
 		}
 	}
 
@@ -97,8 +95,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public Page<Customer> getCustomersByLastNameContaining(String keyword, Pageable pageable) {
-		Page<Customer> customers = repository.findByLastNameContaining(keyword, pageable);
-		return customers;
+		return repository.findByLastNameContaining(keyword, pageable);
 	}
 
 	public CustomerDto convertCustomerToJson(Customer c) {

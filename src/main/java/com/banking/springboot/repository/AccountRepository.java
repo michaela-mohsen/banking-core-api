@@ -1,7 +1,6 @@
 package com.banking.springboot.repository;
 
 import com.banking.springboot.entity.Account;
-import com.banking.springboot.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;

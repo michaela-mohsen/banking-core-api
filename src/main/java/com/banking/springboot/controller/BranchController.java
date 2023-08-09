@@ -1,7 +1,6 @@
 package com.banking.springboot.controller;
 
 import com.banking.springboot.dto.BranchDto;
-import com.banking.springboot.entity.Branch;
 import com.banking.springboot.exceptions.BranchDoesNotExistException;
 import com.banking.springboot.service.impl.BranchServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +21,13 @@ public class BranchController {
     private BranchServiceImpl branchService;
 
     @GetMapping("/branches")
-    public ResponseEntity<?> listAllBranches() {
+    public ResponseEntity<Object> listAllBranches() {
         List<BranchDto> branches = branchService.getAllBranches();
         return new ResponseEntity<>(branches, HttpStatus.OK);
     }
 
     @GetMapping("/branches/search")
-    public ResponseEntity<?> getBranchByName(@RequestParam String name) {
+    public ResponseEntity<Object> getBranchByName(@RequestParam String name) {
         try {
             BranchDto dto = branchService.getBranchByName(name);
             return new ResponseEntity<>(dto,HttpStatus.OK);

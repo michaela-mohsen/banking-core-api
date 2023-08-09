@@ -6,10 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.banking.springboot.dto.AccountDto;
 import com.banking.springboot.dto.TransactionDto;
 import com.banking.springboot.entity.Account;
-import com.banking.springboot.exceptions.AccountDoesNotExistException;
 import com.banking.springboot.exceptions.NoTransactionsException;
 import com.banking.springboot.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Double setPendingBalance(Double amount, Double pendingBalance, String type) {
-        Double newPendingBalance = 0.0;
+        double newPendingBalance;
         if (type.equalsIgnoreCase("DEPOSIT")) {
             newPendingBalance = pendingBalance + amount;
         } else {
