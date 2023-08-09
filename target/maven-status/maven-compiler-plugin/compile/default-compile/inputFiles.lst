@@ -6,7 +6,6 @@ C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\service\ProductService.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\dto\ProductDto.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\repository\TransactionRepository.java
-C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\util\NumericBooleanSerializer.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\exceptions\BranchDoesNotExistException.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\controller\CustomerController.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\exceptions\CustomError.java
@@ -16,7 +15,6 @@ C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\entity\Employee.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\exceptions\AccountDoesNotExistException.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\dto\AccountDto.java
-C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\util\NumericBooleanDeserializer.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\controller\BranchController.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\exceptions\CustomerDoesNotExistException.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\controller\ProductController.java
@@ -33,6 +31,7 @@ C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\dto\CustomerDto.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\dto\TransactionDto.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\entity\Product.java
+C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\util\Utility.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\entity\Customer.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\service\TransactionService.java
 C:\Users\micke\spring-tools-workspace\banking-core-api\src\main\java\com\banking\springboot\repository\BranchRepository.java

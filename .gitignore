@@ -2,3 +2,5 @@
 /.idea/
 /lib/
 /target/
+/target/classes/
+/target/sonar/

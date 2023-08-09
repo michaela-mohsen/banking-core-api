@@ -7,6 +7,7 @@ com\banking\springboot\service\impl\EmployeeServiceImpl.class
 com\banking\springboot\controller\BranchController.class
 com\banking\springboot\exceptions\BranchDoesNotExistException.class
 com\banking\springboot\dto\ProductDto.class
+com\banking\springboot\util\Utility.class
 com\banking\springboot\dto\TransactionDto.class
 com\banking\springboot\controller\TransactionController.class
 com\banking\springboot\repository\CustomerRepository.class
@@ -19,9 +20,7 @@ com\banking\springboot\service\impl\CustomerServiceImpl.class
 com\banking\springboot\entity\Account.class
 com\banking\springboot\service\ProductService.class
 com\banking\springboot\service\TransactionService.class
-com\banking\springboot\util\NumericBooleanDeserializer.class
 com\banking\springboot\controller\AccountController.class
-com\banking\springboot\util\NumericBooleanSerializer.class
 com\banking\springboot\service\impl\AccountServiceImpl.class
 com\banking\springboot\entity\Branch.class
 com\banking\springboot\exceptions\CustomError.class
