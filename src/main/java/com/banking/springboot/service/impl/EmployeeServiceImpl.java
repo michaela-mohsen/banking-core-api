@@ -19,11 +19,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
-	public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
-		super();
-		this.employeeRepository = employeeRepository;
-	}
-
 	@Override
 	public List<Employee> getAllEmployees() {
 		return employeeRepository.findAll();

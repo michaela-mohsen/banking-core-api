@@ -19,7 +19,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping
-@CrossOrigin
+@CrossOrigin("http://localhost:3000")
 @Slf4j
 public class AccountController {
 

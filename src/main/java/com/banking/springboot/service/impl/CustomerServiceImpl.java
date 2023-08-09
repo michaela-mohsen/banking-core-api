@@ -5,13 +5,13 @@ import com.banking.springboot.entity.Customer;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.repository.CustomerRepository;
 import com.banking.springboot.service.CustomerService;
+import com.banking.springboot.util.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +20,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Autowired
 	private CustomerRepository repository;
+
+	@Autowired
+	private Utility util;
 
 	@Override
 	public List<Customer> getAllCustomers() {
@@ -35,7 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerDto getCustomerById(Integer id) throws CustomerDoesNotExistException {
 		Customer customer = repository.findCustomerById(id);
 		if(customer != null) {
-			return convertCustomerToJson(customer);
+			return util.convertCustomerToJson(customer);
 		} else {
 			throw new CustomerDoesNotExistException("Customer not found with id " + id);
 		}
@@ -45,7 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerDto getCustomerByBirthDateAndLastName(LocalDate birthDate, String lastName) throws CustomerDoesNotExistException {
 		Customer c = repository.findByBirthDateAndLastName(birthDate, lastName);
 		if(c != null) {
-			return convertCustomerToJson(c);
+			return util.convertCustomerToJson(c);
 		} else {
 			throw new CustomerDoesNotExistException("Customer not found with birth date " + birthDate + " and last name " + lastName);
 		}
@@ -96,20 +99,6 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public Page<Customer> getCustomersByLastNameContaining(String keyword, Pageable pageable) {
 		return repository.findByLastNameContaining(keyword, pageable);
-	}
-
-	public CustomerDto convertCustomerToJson(Customer c) {
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-		CustomerDto customerJson = new CustomerDto();
-		customerJson.setId(c.getId());
-		customerJson.setFirstName(c.getFirstName());
-		customerJson.setLastName(c.getLastName());
-		customerJson.setBirthDate(c.getBirthDate().format(dateFormatter));
-		customerJson.setAddress(c.getAddress());
-		customerJson.setCity(c.getCity());
-		customerJson.setState(c.getState());
-		customerJson.setZipCode(c.getZipCode());
-		return customerJson;
 	}
 
 	private List<String> listAllStates() {
