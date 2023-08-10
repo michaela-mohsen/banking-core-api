@@ -20,7 +20,7 @@ public interface AccountService {
 
 	AccountDto getAccountById(Integer id) throws AccountDoesNotExistException, NoTransactionsException;
 
-	void deleteAccountById(Integer id);
+	void deleteAccountById(Integer id) throws AccountDoesNotExistException;
 
 	Account saveAccount(AccountDto account) throws CustomerDoesNotExistException, JsonProcessingException;
 

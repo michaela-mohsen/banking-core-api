@@ -61,6 +61,6 @@ public class Account {
 
 	@OneToMany(mappedBy = "account", cascade = CascadeType.MERGE)
 	@JsonIgnore
-	private List<Transaction> transactions = new java.util.ArrayList<>();
+	private List<Transaction> transactions;
 
 }

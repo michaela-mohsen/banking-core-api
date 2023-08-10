@@ -64,13 +64,22 @@ public class AccountServiceImpl implements AccountService {
 			log.info("Account found with id {}", id);
 			return util.convertAccountToJson(a);
 		} else {
+			log.error("Account not found with id {}", id);
 			throw new AccountDoesNotExistException("Account does not exist with id" + id);
 		}
 	}
 
 	@Override
-	public void deleteAccountById(Integer id) {
-		accountRepository.deleteById(id);
+	public void deleteAccountById(Integer id) throws AccountDoesNotExistException {
+		log.info("Inside deleteAccountById {}", id);
+		Account deleteAccount = accountRepository.findAccountById(id);
+		if(deleteAccount != null) {
+			accountRepository.delete(deleteAccount);
+			log.info("Account deleted.");
+		} else {
+			log.error("Account not found with id {}",id);
+			throw new AccountDoesNotExistException("Account does not exist with id " + id);
+		}
 	}
 
 	@Override
@@ -78,12 +87,13 @@ public class AccountServiceImpl implements AccountService {
 		ObjectMapper mapper = new ObjectMapper();
 		log.info("Inside saveAccount {}", mapper.writeValueAsString(accountDto));
 		Account newAccount = new Account();
-		try {
-			Customer customer = customerRepository.findByBirthDateAndLastName(LocalDate.parse(accountDto.getBirthDate()), accountDto.getLastName());
+		Customer customer = customerRepository.findByBirthDateAndLastName(LocalDate.parse(accountDto.getBirthDate()), accountDto.getLastName());
+		if(customer != null) {
 			log.debug("Customer found with birth date " + customer.getBirthDate() + " and last name " + customer.getLastName());
 			newAccount.setCustomer(customer);
-		} catch (Exception e) {
-			throw new CustomerDoesNotExistException("Customer with birth date " + accountDto.getBirthDate() + " and last name " + accountDto.getLastName() + " does not exist");
+		} else {
+			log.error("Customer not found with birth date " + accountDto.getBirthDate() + " and last name " + accountDto.getLastName());
+			throw new CustomerDoesNotExistException("Customer does not exist.");
 		}
 		Branch branch = branchRepository.findByName(accountDto.getBranch());
 		Product product = productRepository.findByName(accountDto.getProduct());
@@ -111,7 +121,9 @@ public class AccountServiceImpl implements AccountService {
 			a.setActive(newAccountStatus);
 			a.setLastActivityDate(LocalDateTime.now());
 			accountRepository.save(a);
-			log.info("Account status updated to " + newAccountStatus);
+			log.info("Account active: " + newAccountStatus);
+		} else {
+			log.info("Account status unchanged.");
 		}
 		dto = util.convertAccountToJson(a);
 		return dto;
@@ -137,17 +149,19 @@ public class AccountServiceImpl implements AccountService {
 		List<AccountDto> accountsToJSON = new ArrayList<>();
 		if(customer != null) {
 			List<Account> accounts = accountRepository.findByCustomerId(id);
-			log.info(accounts.size() + " found for customer with id " + id);
+			log.info(accounts.size() + " accounts found for customer with id " + id);
 			if(!accounts.isEmpty()) {
 				for(Account account : accounts) {
 					AccountDto dto = util.convertAccountToJson(account);
 					accountsToJSON.add(dto);
 				}
 			} else {
-				throw new AccountDoesNotExistException("Customer with id " + id + " does not have any accounts.");
+				log.error("Customer with id " + id + " does not have any accounts.");
+				throw new AccountDoesNotExistException("Customer " + id + " does not have any accounts.");
 			}
 		} else {
-			throw new CustomerDoesNotExistException("Customer with id " + id + " does not exist.");
+			log.error("No customer found with id {}", id);
+			throw new CustomerDoesNotExistException("Customer not found.");
 		}
 		return accountsToJSON;
 	}
