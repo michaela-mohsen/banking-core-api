@@ -6,8 +6,10 @@ import com.banking.springboot.exceptions.AccountDoesNotExistException;
 import com.banking.springboot.exceptions.CustomError;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.service.impl.AccountServiceImpl;
+import com.banking.springboot.util.Utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -24,6 +26,9 @@ import java.util.*;
 public class AccountController {
 
 	private AccountServiceImpl accountService;
+
+	@Autowired
+	private Utility utility;
 
 	public AccountController(AccountServiceImpl accountService) {
 		super();
@@ -91,13 +96,7 @@ public class AccountController {
 				Account newAccount = accountService.saveAccount(accountDto);
 				return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
 			} else {
-				List<CustomError> allErrors = new ArrayList<>();
-				for(FieldError error : bindingResult.getFieldErrors()) {
-					CustomError customError = new CustomError();
-					customError.setField(error.getField());
-					customError.setMessage(error.getDefaultMessage());
-					allErrors.add(customError);
-				}
+				List<CustomError> allErrors = utility.listAllCustomErrors(bindingResult);
 				log.error("Error creating account: {}", allErrors);
 				return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
 			}
@@ -111,9 +110,8 @@ public class AccountController {
 	@PutMapping("/accounts/status/{id}")
 	public ResponseEntity<Object> toggleAccount(@PathVariable Integer id, @RequestBody AccountDto data) {
 		log.info("Inside toggleAccount: {}", data);
-		AccountDto existingAccount;
 		try {
-			existingAccount = accountService.toggleAccountStatus(id, data);
+			AccountDto existingAccount = accountService.toggleAccountStatus(id, data);
 			return new ResponseEntity<>(existingAccount, HttpStatus.OK);
 		} catch (JsonProcessingException e) {
 			log.info("Error inside toggleAccount: {}", e.getMessage());

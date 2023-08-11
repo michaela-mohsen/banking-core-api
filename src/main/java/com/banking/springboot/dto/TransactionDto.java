@@ -1,10 +1,12 @@
 package com.banking.springboot.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import javax.validation.constraints.*;
 
 @Data
+@Generated
 public class TransactionDto {
 
     @NotNull(message = "Amount is required.")

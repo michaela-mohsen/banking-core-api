@@ -1,8 +1,10 @@
 package com.banking.springboot.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 @Data
+@Generated
 public class BranchDto {
 
     private String name;

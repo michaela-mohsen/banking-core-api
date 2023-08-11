@@ -13,6 +13,7 @@ import lombok.*;
 @Entity
 @Data
 @Table(name = "products")
+@Generated
 public class Product {
 
 	@Id

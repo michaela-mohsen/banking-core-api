@@ -21,6 +21,7 @@ import lombok.*;
 @Entity
 @Data
 @Table(name = "employees")
+@Generated
 public class Employee {
 
 	@Id

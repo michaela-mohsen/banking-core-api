@@ -1,12 +1,14 @@
 package com.banking.springboot.dto;
 
 import lombok.Data;
+import lombok.Generated;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 import java.util.List;
 
 @Data
+@Generated
 public class AccountDto {
 
     private Integer id;

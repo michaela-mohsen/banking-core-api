@@ -13,6 +13,7 @@ import lombok.*;
 @Entity
 @Data
 @Table(name = "branches")
+@Generated
 public class Branch {
 
 	@Id

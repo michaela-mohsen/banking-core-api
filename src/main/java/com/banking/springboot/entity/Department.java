@@ -13,6 +13,7 @@ import lombok.*;
 @Entity
 @Data
 @Table(name = "departments")
+@Generated
 public class Department {
 
 	@Id
