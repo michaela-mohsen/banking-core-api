@@ -3,10 +3,14 @@ package com.banking.springboot.service.impl;
 import com.banking.springboot.dto.TransactionDto;
 import com.banking.springboot.entity.Account;
 import com.banking.springboot.entity.Transaction;
+import com.banking.springboot.exceptions.AccountDoesNotExistException;
 import com.banking.springboot.repository.AccountRepository;
 import com.banking.springboot.repository.TransactionRepository;
 import com.banking.springboot.service.TransactionService;
 import com.banking.springboot.util.Utility;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
@@ -33,6 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionDto> getAllTransactions() {
+        log.info("Inside getAllTransactions");
         List<Transaction> transactions = repository.findAll();
         List<TransactionDto> transactionsJson = new ArrayList<>();
         for (Transaction t : transactions) {
@@ -43,7 +49,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction saveTransaction(TransactionDto t) {
+    public Transaction saveTransaction(TransactionDto t) throws JsonProcessingException, AccountDoesNotExistException {
+        ObjectMapper mapper = new ObjectMapper();
+        log.info("Inside saveTransaction: {}", mapper.writeValueAsString(t));
         Transaction transaction = new Transaction();
         transaction.setAmount(t.getAmount());
         transaction.setFundsAvailableDate(LocalDate.now().plusDays(1));
@@ -51,10 +59,15 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setType(t.getType().toUpperCase());
 
         Account account = accountRepository.findAccountById(t.getAccount());
-        Double pendingBalance = setPendingBalance(t.getAmount(), account.getPendingBalance(), t.getType());
-        account.setPendingBalance(pendingBalance);
-        account.setLastActivityDate(LocalDateTime.now());
-        accountRepository.save(account);
+        if(account != null) {
+            Double pendingBalance = setPendingBalance(t.getAmount(), account.getPendingBalance(), t.getType());
+            account.setPendingBalance(pendingBalance);
+            account.setLastActivityDate(LocalDateTime.now());
+            accountRepository.save(account);
+        } else {
+            log.error("Account not found with id {}", t.getAccount());
+            throw new AccountDoesNotExistException("Account does not exist with id " + t.getAccount());
+        }
         transaction.setAccount(account);
         repository.save(transaction);
         return transaction;

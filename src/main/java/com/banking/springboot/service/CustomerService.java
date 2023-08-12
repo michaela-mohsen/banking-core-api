@@ -3,6 +3,7 @@ package com.banking.springboot.service;
 import com.banking.springboot.dto.CustomerDto;
 import com.banking.springboot.entity.Customer;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public interface CustomerService {
 
 	void deleteCustomerById(Integer id) throws CustomerDoesNotExistException;
 
-	Customer updateCustomer(CustomerDto customer) throws CustomerDoesNotExistException;
+	Customer updateCustomer(Integer id, CustomerDto customer) throws CustomerDoesNotExistException, JsonProcessingException;
 
 	Page<Customer> getCustomersByLastNameContaining(String keyword, Pageable pageable) throws CustomerDoesNotExistException;
 }

@@ -6,6 +6,9 @@ import com.banking.springboot.exceptions.CustomerDoesNotExistException;
 import com.banking.springboot.repository.CustomerRepository;
 import com.banking.springboot.service.CustomerService;
 import com.banking.springboot.util.Utility;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class CustomerServiceImpl implements CustomerService {
 
 	@Autowired
@@ -26,36 +30,43 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public List<Customer> getAllCustomers() {
+		log.info("Inside getAllCustomers");
 		return repository.findAll();
 	}
 
 	@Override
 	public Page<Customer> getAllCustomersPageable(Pageable pageable) {
+		log.info("Inside getAllCustomersPageable");
 		return repository.findAll(pageable);
 	}
 
 	@Override
 	public CustomerDto getCustomerById(Integer id) throws CustomerDoesNotExistException {
+		log.info("Inside getCustomerById: {}", id);
 		Customer customer = repository.findCustomerById(id);
 		if(customer != null) {
 			return util.convertCustomerToJson(customer);
 		} else {
+			log.error("No customer found with id {}", id);
 			throw new CustomerDoesNotExistException("Customer not found with id " + id);
 		}
 	}
 
 	@Override
 	public CustomerDto getCustomerByBirthDateAndLastName(LocalDate birthDate, String lastName) throws CustomerDoesNotExistException {
+		log.info("Inside getCustomerByBirthDateAndLastName");
 		Customer c = repository.findByBirthDateAndLastName(birthDate, lastName);
 		if(c != null) {
 			return util.convertCustomerToJson(c);
 		} else {
+			log.error("No customer with birth date {} and last name {} found", birthDate, lastName);
 			throw new CustomerDoesNotExistException("Customer not found with birth date " + birthDate + " and last name " + lastName);
 		}
 	}
 
 	@Override
 	public Customer saveCustomer(CustomerDto customerDto) {
+		log.info("Inside saveCustomer");
 		Customer newCustomer = new Customer();
 		newCustomer.setBirthDate(LocalDate.parse(customerDto.getBirthDate()));
 		newCustomer.setFirstName(customerDto.getFirstName());
@@ -71,17 +82,22 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public void deleteCustomerById(Integer id) throws CustomerDoesNotExistException {
-		try {
+		log.info("Inside deleteCustomerById: {}", id);
+		Customer customer = repository.findCustomerById(id);
+		if(customer != null) {
 			repository.deleteById(id);
-		} catch (Exception e) {
-			throw new CustomerDoesNotExistException("Customer not found with id " + id, e);
+		} else {
+			log.error("No customer found with id {}", id);
+			throw new CustomerDoesNotExistException("Customer not found with id " + id);
 		}
 	}
 
 	@Override
-	public Customer updateCustomer(CustomerDto customer) throws CustomerDoesNotExistException {
+	public Customer updateCustomer(Integer id, CustomerDto customer) throws CustomerDoesNotExistException, JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		log.info("Inside updateCustomer {}", mapper.writeValueAsString(customer));
 		LocalDate birthDate = LocalDate.parse(customer.getBirthDate());
-		Customer existingCustomer = repository.findByBirthDateAndLastName(birthDate, customer.getLastName());
+		Customer existingCustomer = repository.findCustomerById(id);
 		if(existingCustomer != null) {
 			existingCustomer.setFirstName(customer.getFirstName());
 			existingCustomer.setLastName(customer.getLastName());
@@ -92,12 +108,14 @@ public class CustomerServiceImpl implements CustomerService {
 			existingCustomer.setZipCode(customer.getZipCode());
 			return repository.save(existingCustomer);
 		} else {
+			log.error("Customer not found with id: {}", id);
 			throw new CustomerDoesNotExistException("Customer does not exist with birth date " + birthDate + " and last name " + customer.getLastName());
 		}
 	}
 
 	@Override
 	public Page<Customer> getCustomersByLastNameContaining(String keyword, Pageable pageable) {
+		log.info("Inside getCustomersByLastNameContaining: {}", keyword);
 		return repository.findByLastNameContaining(keyword, pageable);
 	}
 

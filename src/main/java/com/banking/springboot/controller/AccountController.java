@@ -90,9 +90,9 @@ public class AccountController {
 	// create a new account object
 	@PostMapping("/accounts/new")
 	public ResponseEntity<Object> createAccount(@RequestBody @Valid AccountDto accountDto, BindingResult bindingResult) {
+		log.info("Inside createAccount");
 		try {
 			if(!bindingResult.hasErrors()) {
-				log.info("Inside createAccount");
 				Account newAccount = accountService.saveAccount(accountDto);
 				return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
 			} else {
