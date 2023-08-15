@@ -49,28 +49,56 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction saveTransaction(TransactionDto t) throws JsonProcessingException, AccountDoesNotExistException {
+    public Transaction saveTransaction(Integer otherAccount, TransactionDto t) throws JsonProcessingException, AccountDoesNotExistException {
         ObjectMapper mapper = new ObjectMapper();
-        log.info("Inside saveTransaction: {}", mapper.writeValueAsString(t));
-        Transaction transaction = new Transaction();
-        transaction.setAmount(t.getAmount());
-        transaction.setFundsAvailableDate(LocalDate.now().plusDays(1));
-        transaction.setDate(LocalDateTime.now());
-        transaction.setType(t.getType().toUpperCase());
-
-        Account account = accountRepository.findAccountById(t.getAccount());
-        if(account != null) {
-            Double pendingBalance = setPendingBalance(t.getAmount(), account.getPendingBalance(), t.getType());
-            account.setPendingBalance(pendingBalance);
-            account.setLastActivityDate(LocalDateTime.now());
-            accountRepository.save(account);
+        log.info("Inside saveTransferTransaction: {}", mapper.writeValueAsString(t));
+        Account source = accountRepository.findAccountById(t.getAccount());
+        Transaction transactionSource = new Transaction();
+        if(source != null) {
+            Double pendingBalanceSource = 0.0;
+            if(t.getType().equalsIgnoreCase("DEPOSIT") || t.getType().equalsIgnoreCase("WITHDRAWAL")) {
+                pendingBalanceSource = setPendingBalance(t.getAmount(), source.getPendingBalance(), t.getType());
+            } else {
+                if(otherAccount != null) {
+                    pendingBalanceSource = setPendingBalance(t.getAmount(), source.getPendingBalance(), "TRANSFER");
+                    Account other = accountRepository.findAccountById(otherAccount);
+                    if(other != null) {
+                        if(other.getCustomer().getId().equals(source.getCustomer().getId())) {
+                            Transaction transactionOther = new Transaction();
+                            transactionOther.setAmount(t.getAmount());
+                            transactionOther.setFundsAvailableDate(LocalDate.now().plusDays(1));
+                            transactionOther.setDate(LocalDateTime.now());
+                            transactionSource.setType(t.getType() + " TO ACCOUNT " + otherAccount);
+                            transactionOther.setType(t.getType() + " FROM ACCOUNT " + t.getAccount());
+                            Double pendingBalanceOther = setPendingBalance(t.getAmount(), other.getPendingBalance(), "DEPOSIT");
+                            other.setPendingBalance(pendingBalanceOther);
+                            other.setLastActivityDate(LocalDateTime.now());
+                            accountRepository.save(other);
+                            transactionOther.setAccount(other);
+                            repository.save(transactionOther);
+                        } else {
+                            throw new AccountDoesNotExistException("Customer does not own account with id " + otherAccount);
+                        }
+                    } else {
+                        throw new AccountDoesNotExistException("Account not found. Please select an existing account.");
+                    }
+                }
+            }
+            source.setPendingBalance(pendingBalanceSource);
+            source.setLastActivityDate(LocalDateTime.now());
+            accountRepository.save(source);
+            transactionSource.setAmount(t.getAmount());
+            transactionSource.setType(t.getType());
+            transactionSource.setFundsAvailableDate(LocalDate.now().plusDays(1));
+            transactionSource.setDate(LocalDateTime.now());
+            transactionSource.setAccount(source);
+            repository.save(transactionSource);
         } else {
             log.error("Account not found with id {}", t.getAccount());
             throw new AccountDoesNotExistException("Account does not exist with id " + t.getAccount());
         }
-        transaction.setAccount(account);
-        repository.save(transaction);
-        return transaction;
+
+        return transactionSource;
     }
 
     @Override
@@ -87,6 +115,9 @@ public class TransactionServiceImpl implements TransactionService {
             newPendingBalance = pendingBalance + amount;
         } else {
             newPendingBalance = pendingBalance - amount;
+            if(newPendingBalance < 0) {
+                throw new IllegalArgumentException("Unable to complete transaction: Insufficient funds.");
+            }
         }
         return newPendingBalance;
     }

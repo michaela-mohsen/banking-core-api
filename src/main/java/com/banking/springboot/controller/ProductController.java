@@ -20,7 +20,6 @@ public class ProductController {
 
     @GetMapping("/products")
     public ResponseEntity<Object> listAllProducts() {
-        log.info("Inside listAllProducts");
         List<ProductDto> products = productService.getAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }

@@ -26,7 +26,6 @@ public class BranchServiceImpl implements BranchService {
 
 	@Override
 	public List<BranchDto> getAllBranches() {
-		log.info("Inside getAllBranches");
 		List<Branch> branches = branchRepository.findAll();
 		List<BranchDto> branchesToJson = new ArrayList<>();
 		for(Branch branch : branches) {

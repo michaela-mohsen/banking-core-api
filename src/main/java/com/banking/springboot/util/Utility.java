@@ -4,6 +4,7 @@ import com.banking.springboot.dto.*;
 import com.banking.springboot.entity.*;
 import com.banking.springboot.exceptions.CustomError;
 import com.banking.springboot.exceptions.NoTransactionsException;
+import com.banking.springboot.repository.AccountRepository;
 import com.banking.springboot.repository.TransactionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -24,6 +26,9 @@ public class Utility {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     public AccountDto convertAccountToJson(Account a) {
         log.debug("Converting account to json {}", a);
@@ -55,12 +60,12 @@ public class Utility {
         log.debug("Inside updateAvailableBalance AccountServiceImpl");
         Double updatedBalance;
         LocalDate now = LocalDate.now();
-        if(now.isAfter(lastActivityDate)) {
-            updatedBalance = availableBalance;
-            log.debug("Balance not changed");
-        } else {
+        if(now.isAfter(lastActivityDate) && !Objects.equals(pendingBalance, availableBalance)) {
             updatedBalance = pendingBalance;
             log.info("Balance updated");
+        } else {
+            updatedBalance = availableBalance;
+            log.debug("Balance not changed");
         }
         return updatedBalance;
     }
@@ -100,6 +105,15 @@ public class Utility {
         customerJson.setCity(c.getCity());
         customerJson.setState(c.getState());
         customerJson.setZipCode(c.getZipCode());
+        List<AccountDto> accountsToJson = new ArrayList<>();
+        List<Account> customerAccounts = accountRepository.findByCustomerId(c.getId());
+        if(!customerAccounts.isEmpty()) {
+            for(Account account : customerAccounts) {
+                AccountDto accountJson = convertAccountToJson(account);
+                accountsToJson.add(accountJson);
+            }
+        }
+        customerJson.setAccounts(accountsToJson);
         return customerJson;
     }
 

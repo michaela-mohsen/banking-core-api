@@ -15,7 +15,6 @@ public interface TransactionService {
 
 	List<TransactionDto> getAllTransactions();
 
-	Transaction saveTransaction(TransactionDto transaction) throws JsonProcessingException, AccountDoesNotExistException;
-
+	Transaction saveTransaction(Integer otherAccount, TransactionDto transaction) throws JsonProcessingException, AccountDoesNotExistException;
 	Page<Transaction> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);
 }

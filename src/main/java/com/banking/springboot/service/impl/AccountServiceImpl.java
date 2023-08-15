@@ -58,10 +58,9 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public AccountDto getAccountById(Integer id) throws AccountDoesNotExistException {
-		log.info("Inside getAccountById: {}", id);
 		Account a = accountRepository.findAccountById(id);
 		if(a != null) {
-			log.info("Account found with id {}", id);
+			log.debug("Account found with id {}", id);
 			return util.convertAccountToJson(a);
 		} else {
 			log.error("Account not found with id {}", id);

@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Data
 @Generated
@@ -15,6 +16,7 @@ public class CustomerDto {
     private Integer id;
 
     @NotNull(message = "Birth date is required.")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Birth date is required.")
     private String birthDate;
 
     @NotEmpty(message = "First name is required.")
@@ -39,4 +41,6 @@ public class CustomerDto {
     @NotEmpty(message = "Zip code is required.")
     @Pattern(regexp = "^\\d{5}$", message = "Zip code must be 5 digits long.")
     private String zipCode;
+
+    List<AccountDto> accounts;
 }

@@ -36,6 +36,7 @@ public class AccountDto {
     private String branch;
 
     @NotNull(message = "Employee ID is required.")
+    @Min(message = "Invalid employee ID.", value = 1)
     private Integer employee;
 
     @NotEmpty(message = "Product type is required.")

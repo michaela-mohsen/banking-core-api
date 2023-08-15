@@ -39,7 +39,6 @@ public class AccountController {
 	@GetMapping("/accounts/{id}")
 	public ResponseEntity<Object> getAccountById(@PathVariable Integer id) {
 		try {
-			log.info("Inside getAccountById: {}", id);
 			AccountDto account = accountService.getAccountById(id);
 			return new ResponseEntity<>(account, HttpStatus.OK);
 		} catch (AccountDoesNotExistException ae) {

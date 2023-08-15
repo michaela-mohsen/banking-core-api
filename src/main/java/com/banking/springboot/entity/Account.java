@@ -1,13 +1,11 @@
 package com.banking.springboot.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Data
@@ -59,9 +57,5 @@ public class Account {
 	@JoinColumn(name = "product")
 	@JsonProperty
 	private Product product;
-
-	@OneToMany(mappedBy = "account", cascade = CascadeType.MERGE)
-	@JsonIgnore
-	private List<Transaction> transactions;
 
 }

@@ -25,4 +25,10 @@ public class CustomExceptionHandler {
     public BranchDoesNotExistException handleBranchDoesNotExistException(BranchDoesNotExistException e) {
         return e;
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public IllegalArgumentException handleIllegalArgumentException(IllegalArgumentException e) {
+        return e;
+    }
 }

@@ -25,7 +25,6 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<ProductDto> getAllProducts() {
-		log.info("Inside getAllProducts()");
 		List<Product> products = productRepository.findAll();
 		List<ProductDto> productsToJson = new ArrayList<>();
 		for(Product p : products) {

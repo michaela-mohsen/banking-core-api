@@ -24,7 +24,6 @@ public class BranchController {
 
     @GetMapping("/branches")
     public ResponseEntity<Object> listAllBranches() {
-        log.info("Inside listAllBranches");
         List<BranchDto> branches = branchService.getAllBranches();
         return new ResponseEntity<>(branches, HttpStatus.OK);
     }
