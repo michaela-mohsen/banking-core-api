@@ -19,19 +19,15 @@ public class CustomerDto {
     @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Birth date is required.")
     private String birthDate;
 
-    @NotEmpty(message = "First name is required.")
     @Length(min = 2, max = 45, message = "First name must be between 2 and 45 characters long.")
     private String firstName;
 
-    @NotEmpty(message = "Last name is required.")
     @Length(min = 2, max = 45, message = "Last name must be between 2 and 45 characters long.")
     private String lastName;
 
-    @NotEmpty(message = "Address is required.")
     @Length(min = 5, max = 45, message = "Address must be between 5 and 45 characters long.")
     private String address;
 
-    @NotEmpty(message = "City is required.")
     @Length(min = 2, max = 45, message = "City must be between 2 and 45 characters long.")
     private String city;
 

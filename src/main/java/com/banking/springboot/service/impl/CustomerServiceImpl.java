@@ -1,9 +1,13 @@
 package com.banking.springboot.service.impl;
 
 import com.banking.springboot.dto.CustomerDto;
+import com.banking.springboot.entity.Account;
 import com.banking.springboot.entity.Customer;
+import com.banking.springboot.entity.Transaction;
 import com.banking.springboot.exceptions.CustomerDoesNotExistException;
+import com.banking.springboot.repository.AccountRepository;
 import com.banking.springboot.repository.CustomerRepository;
+import com.banking.springboot.repository.TransactionRepository;
 import com.banking.springboot.service.CustomerService;
 import com.banking.springboot.util.Utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +30,12 @@ public class CustomerServiceImpl implements CustomerService {
 	private CustomerRepository repository;
 
 	@Autowired
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private TransactionRepository transactionRepository;
+
+	@Autowired
 	private Utility util;
 
 	@Override
@@ -45,7 +55,9 @@ public class CustomerServiceImpl implements CustomerService {
 		log.info("Inside getCustomerById: {}", id);
 		Customer customer = repository.findCustomerById(id);
 		if(customer != null) {
-			return util.convertCustomerToJson(customer);
+			CustomerDto customerJson = util.convertCustomerToJson(customer);
+			customerJson.setBirthDate(customer.getBirthDate().toString());
+			return customerJson;
 		} else {
 			log.error("No customer found with id {}", id);
 			throw new CustomerDoesNotExistException("Customer not found with id " + id);
@@ -85,7 +97,19 @@ public class CustomerServiceImpl implements CustomerService {
 		log.info("Inside deleteCustomerById: {}", id);
 		Customer customer = repository.findCustomerById(id);
 		if(customer != null) {
-			repository.deleteById(id);
+			List<Account> customerAccounts = accountRepository.findByCustomerId(id);
+			if(!customerAccounts.isEmpty()) {
+				for(Account account : customerAccounts) {
+					List<Transaction> accountTransactions = transactionRepository.findByAccountIdOrderByDateDesc(account.getId());
+					if(!accountTransactions.isEmpty()) {
+						for(Transaction t : accountTransactions) {
+							transactionRepository.delete(t);
+						}
+					}
+					accountRepository.delete(account);
+				}
+			}
+			repository.delete(customer);
 		} else {
 			log.error("No customer found with id {}", id);
 			throw new CustomerDoesNotExistException("Customer not found with id " + id);
