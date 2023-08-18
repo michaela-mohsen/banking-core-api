@@ -1,20 +1,11 @@
 package com.banking.springboot.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import com.banking.springboot.auth.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -45,9 +36,8 @@ public class Employee {
 	private String email;
 
 	@Column
-	@Temporal(TemporalType.TIMESTAMP)
 	@JsonProperty
-	private Date startDate;
+	private LocalDate startDate;
 
 	@Column
 	@JsonProperty
@@ -63,4 +53,7 @@ public class Employee {
 	@JsonProperty
 	private Department department;
 
+	@ManyToOne(cascade=CascadeType.MERGE)
+	@JoinColumn(name = "user_id")
+	private User user;
 }
