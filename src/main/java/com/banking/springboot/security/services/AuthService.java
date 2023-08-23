@@ -1,14 +1,17 @@
-package com.banking.springboot.service.impl;
+package com.banking.springboot.security.services;
 
 import com.banking.springboot.auth.*;
+import com.banking.springboot.dto.EmployeeDto;
 import com.banking.springboot.dto.LoginDto;
 import com.banking.springboot.dto.UserDto;
-import com.banking.springboot.entity.Employee;
-import com.banking.springboot.exceptions.UserAlreadyExistsException;
+import com.banking.springboot.entity.RefreshToken;
+import com.banking.springboot.exceptions.*;
+import com.banking.springboot.repository.DepartmentRepository;
 import com.banking.springboot.repository.EmployeeRepository;
 import com.banking.springboot.security.jwt.JwtResponse;
 import com.banking.springboot.security.jwt.JwtUtils;
-import com.banking.springboot.security.services.UserDetailsImpl;
+import com.banking.springboot.service.impl.EmployeeServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,12 +21,20 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
+@Slf4j
 public class AuthService {
+
+    @Autowired
+    private EmployeeServiceImpl employeeService;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -32,6 +43,9 @@ public class AuthService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -43,20 +57,30 @@ public class AuthService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    public JwtResponse authenticateUser(LoginDto loginRequest) {
+    @Autowired
+    private RefreshTokenService tokenService;
+
+    public JwtResponse authenticateUser(LoginDto loginRequest) throws UserDoesNotExistException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        String jwt = jwtUtils.generateJwtToken(userDetails);
+
         List<String> roles = new ArrayList<>();
         for (GrantedAuthority grantedAuthority : userDetails.getAuthorities()) {
             String authority = grantedAuthority.getAuthority();
             roles.add(authority);
         }
+        RefreshToken refreshToken;
+        try {
+            refreshToken = tokenService.createRefreshToken(userDetails.getId());
+        } catch (UserDoesNotExistException e) {
+            throw new UserDoesNotExistException("User not found with id " + userDetails.getId());
+        }
         JwtResponse response = new JwtResponse();
+        response.setRefreshToken(refreshToken.getToken());
         response.setToken(jwt);
         response.setUsername(userDetails.getUsername());
         response.setEmail(userDetails.getEmail());
@@ -65,7 +89,7 @@ public class AuthService {
         return response;
     }
 
-    public User saveUser(UserDto userDto) throws UserAlreadyExistsException {
+    public User saveUser(UserDto userDto) throws UserAlreadyExistsException, DepartmentDoesNotExistException, BranchDoesNotExistException, EmployeeAlreadyExistsException {
         User newUser = new User();
         String encodedPassword = encoder.encode(userDto.getPassword());
         User existingUser = userRepository.findByEmail(userDto.getEmail());
@@ -78,25 +102,29 @@ public class AuthService {
         newUser.setAvatar(userDto.getAvatar());
         newUser.setCreateDate(LocalDateTime.now());
         Set<Role> roles = new HashSet<>();
+        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN);
         Role userRole = roleRepository.findByName(ERole.ROLE_USER);
         if(userRole != null) {
-            roles.add(userRole);
+            if(userDto.getTitle().equalsIgnoreCase("Administrator")) {
+                roles.add(adminRole);
+            } else {
+                roles.add(userRole);
+            }
         }
         newUser.setRoles(roles);
         userRepository.save(newUser);
-        Employee e = employeeRepository.findEmployeeByEmail(userDto.getEmail());
-        if(e != null) {
-            e.setUser(newUser);
-            employeeRepository.save(e);
-        } else {
-            Employee newEmployee = new Employee();
-            newEmployee.setFirstName(userDto.getFirstName());
-            newEmployee.setLastName(userDto.getLastName());
-            newEmployee.setEmail(userDto.getEmail());
-            newEmployee.setTitle(userDto.getTitle());
-            newEmployee.setUser(newUser);
-            newEmployee.setStartDate(LocalDate.now());
-            employeeRepository.save(newEmployee);
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName(userDto.getFirstName());
+        employeeDto.setLastName(userDto.getLastName());
+        employeeDto.setEmail(userDto.getEmail());
+        employeeDto.setTitle(userDto.getTitle());
+        employeeDto.setBranch(userDto.getBranch());
+
+        try {
+            employeeService.saveEmployee(employeeDto);
+        } catch (Exception e) {
+            log.error("Error saving employee: {}", e.getMessage());
+            throw e;
         }
         return newUser;
     }

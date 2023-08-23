@@ -34,7 +34,6 @@ public class EmployeeDto {
     @NotEmpty(message = "Branch is required.")
     private String branch;
 
-    @NotEmpty(message = "Department is required.")
     private String department;
 
     private UserDto user;

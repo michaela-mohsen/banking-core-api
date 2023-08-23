@@ -5,6 +5,8 @@ import com.banking.springboot.entity.*;
 import com.banking.springboot.exceptions.CustomError;
 import com.banking.springboot.exceptions.NoTransactionsException;
 import com.banking.springboot.repository.AccountRepository;
+import com.banking.springboot.repository.DepartmentRepository;
+import com.banking.springboot.repository.EmployeeRepository;
 import com.banking.springboot.repository.TransactionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,12 @@ public class Utility {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     public AccountDto convertAccountToJson(Account a) {
         log.debug("Converting account to json {}", a);
@@ -117,6 +125,19 @@ public class Utility {
         return customerJson;
     }
 
+    public EmployeeDto convertEmployeeToJson(Employee e) {
+        EmployeeDto dto = new EmployeeDto();
+        dto.setId(e.getId());
+        dto.setFirstName(e.getFirstName());
+        dto.setLastName(e.getLastName());
+        dto.setTitle(e.getTitle());
+        dto.setBranch(e.getBranch().getName());
+        dto.setDepartment(e.getDepartment().getName());
+        dto.setStartDate(formatLocalDate(e.getStartDate()));
+        dto.setEmail(e.getEmail());
+        return dto;
+    }
+
     public ProductDto convertProductToJson(Product p) {
         ProductDto dto = new ProductDto();
         dto.setId(p.getId());
@@ -134,6 +155,16 @@ public class Utility {
         dto.setZipCode(b.getZipCode());
 
         return dto;
+    }
+
+    public Department setDepartmentByTitle(String title) {
+        return switch (title) {
+            case "Operations Manager", "Head Teller", "Teller" -> departmentRepository.findByName("Operations");
+            case "Administrator" -> departmentRepository.findByName("IT");
+            case "Loan Manager" -> departmentRepository.findByName("Loans");
+            case "President", "Vice President", "Treasurer" -> departmentRepository.findByName("Administration");
+            default -> null;
+        };
     }
 
     public String formatLocalDate(LocalDate localDate) {

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,6 @@ import java.util.List;
 @RequestMapping("/user")
 @CrossOrigin("http://localhost:3000")
 @Slf4j
-@PreAuthorize("hasRole('USER')")
 public class TransactionController {
 
     @Autowired
@@ -31,6 +31,7 @@ public class TransactionController {
     private Utility util;
 
     @GetMapping("/transactions")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> getAllTransactions() {
         log.info("Inside getAllTransactions");
         List<TransactionDto> transactions = service.getAllTransactions();
@@ -38,6 +39,7 @@ public class TransactionController {
     }
 
     @PostMapping("/transactions/new")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> createTransaction(@RequestParam(required = false) Integer otherAccount, @RequestBody @Valid TransactionDto transaction, BindingResult bindingResult) {
         log.info("Inside createTransaction");
         try {
@@ -50,13 +52,8 @@ public class TransactionController {
                 return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
             }
         } catch(AccountDoesNotExistException ae) {
-            log.error("Error inside createTransaction: {}", ae.getMessage());
             return new ResponseEntity<>(ae.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException ie) {
-            log.error("Error inside createTransaction: {}", ie.getMessage());
-            return new ResponseEntity<>(ie.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error("Error inside createTransaction: {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -1,7 +1,6 @@
 package com.banking.springboot.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -33,9 +32,9 @@ public class CustomExceptionHandler {
         return e;
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public MethodArgumentNotValidException handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return e;
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public TokenRefreshException handleTokenRefreshException(TokenRefreshException ex) {
+        return ex;
     }
 }

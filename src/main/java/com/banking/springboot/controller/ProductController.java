@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,18 +15,19 @@ import java.util.List;
 @CrossOrigin("http://localhost:3000")
 @RestController
 @Slf4j
-@PreAuthorize("hasRole('USER')")
 public class ProductController {
     @Autowired
     private ProductServiceImpl productService;
 
     @GetMapping("/products")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> listAllProducts() {
         List<ProductDto> products = productService.getAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @GetMapping("/products/search")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> findProductByName(@RequestParam String name) {
         log.info("Inside findProductByName: {}", name);
         ProductDto dto = productService.findProductByName(name);

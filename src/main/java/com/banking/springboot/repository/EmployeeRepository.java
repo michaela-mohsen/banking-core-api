@@ -10,6 +10,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Employee findEmployeeById(Integer id);
 
-    Employee findEmployeeByEmail(String email);
+    Employee findByEmail(String email);
 
 }

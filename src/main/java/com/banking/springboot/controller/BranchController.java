@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,19 +17,20 @@ import java.util.List;
 @CrossOrigin("http://localhost:3000")
 @Slf4j
 @RequestMapping("/user")
-@PreAuthorize("hasRole('USER')")
 public class BranchController {
 
     @Autowired
     private BranchServiceImpl branchService;
 
     @GetMapping("/branches")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> listAllBranches() {
         List<BranchDto> branches = branchService.getAllBranches();
         return new ResponseEntity<>(branches, HttpStatus.OK);
     }
 
     @GetMapping("/branches/search")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> getBranchByName(@RequestParam String name) {
         log.info("Inside getBranchByName: {}", name);
         try {

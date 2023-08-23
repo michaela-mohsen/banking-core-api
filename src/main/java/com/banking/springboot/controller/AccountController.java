@@ -62,6 +62,7 @@ public class AccountController {
 
 	// filter accounts by type
 	@GetMapping("/accounts/search")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<Object> listAccountsByProductType(@RequestParam("type") String type) {
 		try {
 			log.info("Inside listAccountsByProductType: {}", type);
@@ -74,6 +75,7 @@ public class AccountController {
 	}
 
 	@GetMapping("/accounts/customer/{id}")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<Object> listAccountsByCustomerId(@PathVariable Integer id) {
 		try {
 			log.info("Inside getAccountsByCustomerId: {}", id);
@@ -90,6 +92,7 @@ public class AccountController {
 
 	// create a new account object
 	@PostMapping("/accounts/new")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<Object> createAccount(@RequestBody @Valid AccountDto accountDto, BindingResult bindingResult) {
 		log.info("Inside createAccount");
 		try {
@@ -109,6 +112,7 @@ public class AccountController {
 
 	// activate/deactivate an account object
 	@PutMapping("/accounts/status/{id}")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<Object> toggleAccount(@PathVariable Integer id, @RequestBody AccountDto data) {
 		log.info("Inside toggleAccount: {}", data);
 		try {

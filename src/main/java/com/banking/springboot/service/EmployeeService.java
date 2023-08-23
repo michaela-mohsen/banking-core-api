@@ -5,6 +5,7 @@ import com.banking.springboot.entity.Employee;
 import com.banking.springboot.exceptions.BranchDoesNotExistException;
 import com.banking.springboot.exceptions.DepartmentDoesNotExistException;
 import com.banking.springboot.exceptions.EmployeeAlreadyExistsException;
+import com.banking.springboot.exceptions.EmployeeDoesNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public interface EmployeeService {
 
 	Employee getEmployeeById(Integer id);
 
-	Employee getEmployeeByEmail(String email);
+	EmployeeDto getEmployeeByEmail(String email) throws EmployeeDoesNotExistException;
 
 	Employee saveEmployee(EmployeeDto employee) throws BranchDoesNotExistException, DepartmentDoesNotExistException, EmployeeAlreadyExistsException;
 

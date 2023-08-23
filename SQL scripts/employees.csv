@@ -1,0 +1,8 @@
+"id";"email";"first_name";"last_name";"start_date";"title";"branch_id";"department_id";"user_id"
+1;"msmith@bank.com";"Michael";"Smith";"2023-01-01 18:17:58";"President";1;3;0
+2;"sbarker@bank.com";"Susan";"Barker";"2023-01-01 18:17:58";"Vice President";1;3;0
+3;"rtyler@bank.com";"Robert";"Tyler";"2023-01-01 18:21:24";"Treasurer";1;3;0
+4;"shawthorne@bank.com";"Susan";"Hawthorne";"2023-01-01 18:22:43";"Operations Manager";1;1;0
+5;"jgooding@bank.com";"John";"Gooding";"2023-01-01 18:24:22";"Loan Manager";1;2;0
+6;"hfleming@bank.com";"Helen";"Fleming";"2023-01-01 18:26:27";"Head Teller";2;1;0
+7;"ctucker@bank.com";"Chris";"Tucker";"2023-01-01 18:30:58";"Teller";2;1;0

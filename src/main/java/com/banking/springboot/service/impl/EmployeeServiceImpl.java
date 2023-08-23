@@ -1,8 +1,5 @@
 package com.banking.springboot.service.impl;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import com.banking.springboot.auth.User;
 import com.banking.springboot.auth.UserRepository;
 import com.banking.springboot.dto.EmployeeDto;
@@ -12,20 +9,25 @@ import com.banking.springboot.entity.Employee;
 import com.banking.springboot.exceptions.BranchDoesNotExistException;
 import com.banking.springboot.exceptions.DepartmentDoesNotExistException;
 import com.banking.springboot.exceptions.EmployeeAlreadyExistsException;
+import com.banking.springboot.exceptions.EmployeeDoesNotExistException;
 import com.banking.springboot.repository.BranchRepository;
 import com.banking.springboot.repository.DepartmentRepository;
+import com.banking.springboot.repository.EmployeeRepository;
+import com.banking.springboot.service.EmployeeService;
+import com.banking.springboot.util.Utility;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.banking.springboot.repository.EmployeeRepository;
-import com.banking.springboot.service.EmployeeService;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
@@ -40,42 +42,43 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private Utility utility;
+
 	@Override
 	public List<Employee> getAllEmployees() {
 		return employeeRepository.findAll();
 	}
 
 	@Override
-	public Employee saveEmployee(EmployeeDto employee) throws BranchDoesNotExistException, DepartmentDoesNotExistException, EmployeeAlreadyExistsException {
-		Employee e = new Employee();
-		Employee existingEmployee = employeeRepository.findEmployeeByEmail(employee.getEmail());
-		Branch b = branchRepository.findByName(employee.getBranch());
-		Department d = departmentRepository.findByName(employee.getDepartment());
-		User u = userRepository.findByEmail(employee.getEmail());
-		if(existingEmployee != null) {
-			throw new EmployeeAlreadyExistsException("Employee already exists with email " + existingEmployee.getEmail());
-		}
-		if(b != null) {
-			e.setBranch(b);
+	public Employee saveEmployee(EmployeeDto employee) throws EmployeeAlreadyExistsException, DepartmentDoesNotExistException, BranchDoesNotExistException {
+		Employee existingEmployee = employeeRepository.findByEmail(employee.getEmail());
+		if(existingEmployee == null) {
+			try {
+				Employee newEmployee = setEmployeeInformation(employee, new Employee());
+				return employeeRepository.save(newEmployee);
+			} catch(Exception e) {
+				log.error("Error saving employee: {}", e.getMessage());
+				throw e;
+			}
 		} else {
-			throw new BranchDoesNotExistException("Branch does not exist. Please select another branch.");
+			throw new EmployeeAlreadyExistsException("Employee already exists with email " + employee.getEmail());
 		}
-		if(d != null) {
-			e.setDepartment(d);
+	}
+
+	public Employee updateEmployee(EmployeeDto employee, Integer id) throws BranchDoesNotExistException, DepartmentDoesNotExistException, EmployeeDoesNotExistException {
+		Employee existingEmployee = employeeRepository.findEmployeeById(id);
+		if(existingEmployee == null) {
+			throw new EmployeeDoesNotExistException("Employee not found with id " + id);
 		} else {
-			throw new DepartmentDoesNotExistException("Department does not exist. Please select another department.");
+			try {
+				Employee updatedEmployee = setEmployeeInformation(employee, existingEmployee);
+				return employeeRepository.save(updatedEmployee);
+			} catch (Exception e) {
+				log.error("Error updating employee: {}", e.getMessage());
+				throw e;
+			}
 		}
-		if(u != null) {
-			e.setUser(u);
-		} else {
-			throw new UsernameNotFoundException("Employee has not created a user account with email " + employee.getEmail() + ". Create another user account or use another email.");
-		}
-		e.setFirstName(employee.getFirstName());
-		e.setLastName(employee.getLastName());
-		e.setEmail(employee.getEmail());
-		e.setStartDate(LocalDate.now());
-		e.setTitle(employee.getTitle());
-		return employeeRepository.save(e);
 	}
 
 	@Override
@@ -87,8 +90,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return this.employeeRepository.findAll(pageable);
 	}
 
-	public Employee getEmployeeByEmail(String email) {
-		return employeeRepository.findEmployeeByEmail(email);
+	public EmployeeDto getEmployeeByEmail(String email) throws EmployeeDoesNotExistException {
+		Employee employee = employeeRepository.findByEmail(email);
+		if(employee != null) {
+			return utility.convertEmployeeToJson(employee);
+		} else {
+			throw new EmployeeDoesNotExistException("Employee does not exist with email " + email);
+		}
 	}
 
 	@Override
@@ -96,4 +104,36 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeRepository.findEmployeeById(id);
 	}
 
+	private Employee setEmployeeInformation(EmployeeDto employeeJson, Employee employeeEntity) throws BranchDoesNotExistException, DepartmentDoesNotExistException {
+		Branch b = branchRepository.findByName(employeeJson.getBranch());
+		if(b != null) {
+			employeeEntity.setBranch(b);
+		} else {
+			throw new BranchDoesNotExistException("Branch does not exist. Please select another branch.");
+		}
+
+		Department d = utility.setDepartmentByTitle(employeeJson.getTitle());
+		if(d != null) {
+			employeeEntity.setDepartment(d);
+		} else {
+			throw new DepartmentDoesNotExistException("Department does not exist. Please select another department.");
+		}
+		employeeEntity.setFirstName(employeeJson.getFirstName());
+		employeeEntity.setLastName(employeeJson.getLastName());
+		employeeEntity.setEmail(employeeJson.getEmail());
+		employeeEntity.setTitle(employeeJson.getTitle());
+		if(employeeEntity.getStartDate() == null) {
+			employeeEntity.setStartDate(LocalDate.now());
+		}
+		if(employeeEntity.getUser() != null) {
+			User u = employeeEntity.getUser();
+			u.setEmail(employeeJson.getEmail());
+			userRepository.save(u);
+			employeeEntity.setUser(u);
+		} else {
+			User user = userRepository.findByEmail(employeeJson.getEmail());
+			employeeEntity.setUser(user);
+		}
+		return employeeEntity;
+	}
 }

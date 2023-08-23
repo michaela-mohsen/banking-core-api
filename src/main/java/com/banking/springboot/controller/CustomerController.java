@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,6 @@ import java.util.Map;
 @RequestMapping("/user")
 @CrossOrigin("http://localhost:3000")
 @Slf4j
-@PreAuthorize("hasRole('USER')")
 public class CustomerController {
 
     private CustomerServiceImpl customerService;
@@ -41,6 +41,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> listCustomers(@RequestParam(required = false) String lastName, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         log.info("Inside listCustomers" );
         Pageable paging = PageRequest.of(page, size);
@@ -67,6 +68,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/{id}")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> getCustomerById(@PathVariable Integer id) {
         log.info("Inside getCustomerById: {}", id);
         try {
@@ -82,6 +84,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/search")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> getCustomerByLastNameAndBirthDate(@RequestParam String lastName, @RequestParam String birthDate) {
         log.info("Inside getCustomerByLastNameAndBirthDate: {} {}", lastName, birthDate);
         try {
@@ -97,6 +100,7 @@ public class CustomerController {
     }
 
     @PostMapping("/customers/new")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> createCustomer(@Valid @RequestBody CustomerDto customerDto, BindingResult bindingResult) {
         log.info("Inside createCustomer");
         try {
@@ -115,6 +119,7 @@ public class CustomerController {
     }
 
     @PutMapping("/customers/update/{id}")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> updateCustomer(@PathVariable Integer id, @Valid @RequestBody CustomerDto customerDto, BindingResult bindingResult) {
         log.info("Inside updateCustomer");
         try {
@@ -136,6 +141,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/customers/delete/{id}")
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Object> deleteCustomer(@PathVariable Integer id) {
         try {
             customerService.deleteCustomerById(id);
