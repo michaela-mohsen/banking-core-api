@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -62,8 +62,9 @@ public class WebSecurityConfig {
                         {
                             try {
                                 auth.antMatchers("/auth/sign-in", "/auth/sign-up", "/auth/delete-all-users", "/auth/log-in").permitAll()
-                                        .antMatchers("/user/**").hasAnyAuthority("ROLE_USER")
-                                        .antMatchers("/auth/sign-out", "/auth/refresh-token").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                                        .antMatchers("/user/**").hasRole("USER")
+                                        .antMatchers("/user/**", "/user/employees").hasRole("ADMIN")
+                                        .antMatchers("/auth/sign-out", "/auth/refresh-token", "/user/employees/**").hasAnyRole("USER", "ADMIN")
                                         .anyRequest().authenticated();
                             } catch (Exception e) {
                                 e.printStackTrace();

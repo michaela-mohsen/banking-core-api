@@ -102,14 +102,13 @@ public class AuthService {
         newUser.setAvatar(userDto.getAvatar());
         newUser.setCreateDate(LocalDateTime.now());
         Set<Role> roles = new HashSet<>();
-        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN);
-        Role userRole = roleRepository.findByName(ERole.ROLE_USER);
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        Role userRole = roleRepository.findByName("ROLE_USER");
         if(userRole != null) {
             if(userDto.getTitle().equalsIgnoreCase("Administrator")) {
                 roles.add(adminRole);
-            } else {
-                roles.add(userRole);
             }
+            roles.add(userRole);
         }
         newUser.setRoles(roles);
         userRepository.save(newUser);

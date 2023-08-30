@@ -1,7 +1,5 @@
 package com.banking.springboot.dto;
 
-import com.banking.springboot.util.validation.EmailUnique;
-import com.banking.springboot.util.validation.FieldsMatch;
 import lombok.Data;
 import lombok.Generated;
 import org.hibernate.validator.constraints.Length;
@@ -9,7 +7,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.*;
 
 @Data
-@FieldsMatch(fieldOne = "password", fieldTwo = "confirmPassword", message = "The password fields must match.")
 @Generated
 public class EmployeeDto {
     private Integer id;
@@ -22,7 +19,6 @@ public class EmployeeDto {
 
     @NotEmpty(message = "Email is required.")
     @Length(max = 256, message = "Email must be less than 256 characters.")
-    @EmailUnique
     private String email;
 
     private String startDate;
@@ -36,5 +32,5 @@ public class EmployeeDto {
 
     private String department;
 
-    private UserDto user;
+    private String password;
 }

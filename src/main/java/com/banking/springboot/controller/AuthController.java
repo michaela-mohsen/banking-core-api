@@ -89,7 +89,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Object> refreshToken(@Valid @RequestBody TokenRefreshRequest refreshRequest) {
         try {
             TokenRefreshResponse response = refreshTokenService.refreshToken(refreshRequest);
@@ -102,7 +102,7 @@ public class AuthController {
     }
 
     @GetMapping("/sign-out")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Object> logoutUser() {
         log.info("Begin log out");
         try {

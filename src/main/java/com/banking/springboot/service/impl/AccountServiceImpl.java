@@ -82,9 +82,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public Account saveAccount(AccountDto accountDto) throws CustomerDoesNotExistException, JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		log.info("Inside saveAccount {}", mapper.writeValueAsString(accountDto));
+	public Account saveAccount(AccountDto accountDto) throws CustomerDoesNotExistException {
 		Account newAccount = new Account();
 		Customer customer = customerRepository.findByBirthDateAndLastName(LocalDate.parse(accountDto.getBirthDate()), accountDto.getLastName());
 		if(customer != null) {

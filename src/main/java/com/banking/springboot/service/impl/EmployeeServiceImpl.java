@@ -1,5 +1,7 @@
 package com.banking.springboot.service.impl;
 
+import com.banking.springboot.auth.Role;
+import com.banking.springboot.auth.RoleRepository;
 import com.banking.springboot.auth.User;
 import com.banking.springboot.auth.UserRepository;
 import com.banking.springboot.dto.EmployeeDto;
@@ -41,6 +43,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@Autowired
 	private Utility utility;
@@ -127,9 +132,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 		if(employeeEntity.getUser() != null) {
 			User u = employeeEntity.getUser();
-			u.setEmail(employeeJson.getEmail());
-			userRepository.save(u);
-			employeeEntity.setUser(u);
+			User existingUser = userRepository.findByEmail(u.getEmail());
+			if(existingUser != null) {
+				Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+				if(adminRole != null) {
+					if(employeeEntity.getTitle().equalsIgnoreCase("Administrator") && !existingUser.getRoles().contains(adminRole)) {
+						existingUser.getRoles().add(adminRole);
+					} else if (!employeeEntity.getTitle().equalsIgnoreCase("Administrator") && existingUser.getRoles().contains(adminRole)) {
+						existingUser.getRoles().remove(adminRole);
+					}
+				}
+				existingUser.setUsername(employeeJson.getEmail());
+				existingUser.setEmail(employeeJson.getEmail());
+				existingUser.setPassword(employeeJson.getPassword());
+				userRepository.save(existingUser);
+				employeeEntity.setUser(existingUser);
+			}
 		} else {
 			User user = userRepository.findByEmail(employeeJson.getEmail());
 			employeeEntity.setUser(user);

@@ -29,7 +29,7 @@ public class EmployeeController {
     private Utility utility;
 
     @GetMapping("/employees/search")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Object> findEmployeeByEmail(@RequestParam String email) {
         log.info("Inside findEmployeeByEmail: {}", email);
         try {
@@ -42,8 +42,20 @@ public class EmployeeController {
         }
     }
 
+    @GetMapping("/employees")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Object> findAllEmployees() {
+        log.info("Inside findAllEmployees");
+        try {
+            List<Employee> employees = service.getAllEmployees();
+            return new ResponseEntity<>(employees, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/employees/new")
-    @Secured({"ROLE_ADMIN"})
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> createNewEmployee(@Valid @RequestBody EmployeeDto employeeDto, BindingResult bindingResult) {
         try {
             if(!bindingResult.hasErrors()) {
@@ -61,7 +73,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/update/{id}")
-    @Secured({"ROLE_USER"})
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Object> updateEmployee(@PathVariable Integer id, @Valid @RequestBody EmployeeDto employeeDto, BindingResult bindingResult) {
         try {
             if(!bindingResult.hasErrors()) {
