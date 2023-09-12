@@ -83,6 +83,8 @@ public class EmployeeController {
                 List<CustomError> allErrors = utility.listAllCustomErrors(bindingResult);
                 return new ResponseEntity<>(allErrors, HttpStatus.BAD_REQUEST);
             }
+        } catch (InvalidOldPasswordException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (BranchDoesNotExistException | DepartmentDoesNotExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {

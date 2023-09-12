@@ -8,10 +8,7 @@ import com.banking.springboot.dto.EmployeeDto;
 import com.banking.springboot.entity.Branch;
 import com.banking.springboot.entity.Department;
 import com.banking.springboot.entity.Employee;
-import com.banking.springboot.exceptions.BranchDoesNotExistException;
-import com.banking.springboot.exceptions.DepartmentDoesNotExistException;
-import com.banking.springboot.exceptions.EmployeeAlreadyExistsException;
-import com.banking.springboot.exceptions.EmployeeDoesNotExistException;
+import com.banking.springboot.exceptions.*;
 import com.banking.springboot.repository.BranchRepository;
 import com.banking.springboot.repository.DepartmentRepository;
 import com.banking.springboot.repository.EmployeeRepository;
@@ -23,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -50,13 +48,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Autowired
 	private Utility utility;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public List<Employee> getAllEmployees() {
 		return employeeRepository.findAll();
 	}
 
 	@Override
-	public Employee saveEmployee(EmployeeDto employee) throws EmployeeAlreadyExistsException, DepartmentDoesNotExistException, BranchDoesNotExistException {
+	public Employee saveEmployee(EmployeeDto employee) throws EmployeeAlreadyExistsException, DepartmentDoesNotExistException, BranchDoesNotExistException, InvalidOldPasswordException {
 		Employee existingEmployee = employeeRepository.findByEmail(employee.getEmail());
 		if(existingEmployee == null) {
 			try {
@@ -71,7 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 	}
 
-	public Employee updateEmployee(EmployeeDto employee, Integer id) throws BranchDoesNotExistException, DepartmentDoesNotExistException, EmployeeDoesNotExistException {
+	public Employee updateEmployee(EmployeeDto employee, Integer id) throws BranchDoesNotExistException, DepartmentDoesNotExistException, EmployeeDoesNotExistException, InvalidOldPasswordException {
 		Employee existingEmployee = employeeRepository.findEmployeeById(id);
 		if(existingEmployee == null) {
 			throw new EmployeeDoesNotExistException("Employee not found with id " + id);
@@ -109,7 +110,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeRepository.findEmployeeById(id);
 	}
 
-	private Employee setEmployeeInformation(EmployeeDto employeeJson, Employee employeeEntity) throws BranchDoesNotExistException, DepartmentDoesNotExistException {
+	private Employee setEmployeeInformation(EmployeeDto employeeJson, Employee employeeEntity) throws BranchDoesNotExistException, DepartmentDoesNotExistException, InvalidOldPasswordException {
 		Branch b = branchRepository.findByName(employeeJson.getBranch());
 		if(b != null) {
 			employeeEntity.setBranch(b);
@@ -138,13 +139,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 				if(adminRole != null) {
 					if(employeeEntity.getTitle().equalsIgnoreCase("Administrator") && !existingUser.getRoles().contains(adminRole)) {
 						existingUser.getRoles().add(adminRole);
-					} else if (!employeeEntity.getTitle().equalsIgnoreCase("Administrator") && existingUser.getRoles().contains(adminRole)) {
+					} else if (!employeeEntity.getTitle().equalsIgnoreCase("Administrator")) {
 						existingUser.getRoles().remove(adminRole);
 					}
 				}
 				existingUser.setUsername(employeeJson.getEmail());
 				existingUser.setEmail(employeeJson.getEmail());
-				existingUser.setPassword(employeeJson.getPassword());
+				if(passwordEncoder.matches(employeeJson.getOldPassword(), existingUser.getPassword())) {
+					if(!employeeJson.getNewPassword().isEmpty()) {
+						existingUser.setPassword(passwordEncoder.encode(employeeJson.getNewPassword()));
+					}
+				} else {
+					throw new InvalidOldPasswordException("Current password is invalid.");
+				}
 				userRepository.save(existingUser);
 				employeeEntity.setUser(existingUser);
 			}

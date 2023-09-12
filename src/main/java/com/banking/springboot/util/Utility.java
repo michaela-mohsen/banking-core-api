@@ -135,6 +135,8 @@ public class Utility {
         dto.setDepartment(e.getDepartment().getName());
         dto.setStartDate(formatLocalDate(e.getStartDate()));
         dto.setEmail(e.getEmail());
+        dto.setOldPassword("");
+        dto.setNewPassword("");
         return dto;
     }
 

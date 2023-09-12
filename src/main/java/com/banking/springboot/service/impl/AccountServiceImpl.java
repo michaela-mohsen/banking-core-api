@@ -104,6 +104,7 @@ public class AccountServiceImpl implements AccountService {
 		newAccount.setProduct(product);
 		newAccount.setEmployee(employee);
 		log.debug("New account saved");
+        accountRepository.save(newAccount);
 		return accountRepository.save(newAccount);
 	}
 

@@ -17,14 +17,13 @@ public class EmployeeDto {
     @Length(min = 2, max = 45, message = "Last name must be between 2 and 45 characters long.")
     private String lastName;
 
-    @NotEmpty(message = "Email is required.")
-    @Length(max = 256, message = "Email must be less than 256 characters.")
+
+    @Length(min = 10, max = 256, message = "Email must be less than 256 characters.")
     private String email;
 
     private String startDate;
 
-    @NotEmpty(message = "Title is required.")
-    @Length(max = 45, message = "Title must be less than 45 characters.")
+    @Length(min=5, max = 45, message = "Title must be less than 45 characters.")
     private String title;
 
     @NotEmpty(message = "Branch is required.")
@@ -32,5 +31,8 @@ public class EmployeeDto {
 
     private String department;
 
-    private String password;
+    @NotEmpty(message = "Password is required.")
+    private String oldPassword;
+
+    private String newPassword;
 }

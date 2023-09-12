@@ -37,4 +37,10 @@ public class CustomExceptionHandler {
     public TokenRefreshException handleTokenRefreshException(TokenRefreshException ex) {
         return ex;
     }
+
+    @ExceptionHandler(InvalidOldPasswordException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public InvalidOldPasswordException handleInvalidOldPasswordException(InvalidOldPasswordException ex) {
+        return ex;
+    }
 }

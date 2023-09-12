@@ -88,7 +88,9 @@ public class TransactionServiceImpl implements TransactionService {
             source.setLastActivityDate(LocalDateTime.now());
             accountRepository.save(source);
             transactionSource.setAmount(t.getAmount());
-            transactionSource.setType(t.getType());
+            if(transactionSource.getType() == null) {
+                transactionSource.setType(t.getType());
+            }
             transactionSource.setFundsAvailableDate(LocalDate.now().plusDays(1));
             transactionSource.setDate(LocalDateTime.now());
             transactionSource.setAccount(source);

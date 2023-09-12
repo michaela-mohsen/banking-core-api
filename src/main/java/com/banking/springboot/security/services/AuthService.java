@@ -89,7 +89,7 @@ public class AuthService {
         return response;
     }
 
-    public User saveUser(UserDto userDto) throws UserAlreadyExistsException, DepartmentDoesNotExistException, BranchDoesNotExistException, EmployeeAlreadyExistsException {
+    public User saveUser(UserDto userDto) throws UserAlreadyExistsException, DepartmentDoesNotExistException, BranchDoesNotExistException, EmployeeAlreadyExistsException, InvalidOldPasswordException {
         User newUser = new User();
         String encodedPassword = encoder.encode(userDto.getPassword());
         User existingUser = userRepository.findByEmail(userDto.getEmail());
